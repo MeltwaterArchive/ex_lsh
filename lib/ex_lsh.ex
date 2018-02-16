@@ -140,6 +140,9 @@ defmodule ExLSH do
     |> :binary.list_to_bin()
   end
 
+  @doc """
+  Convert a binary to a list of bits: 1 for 1, -1 for 0.
+  """
   def binary_to_bits(<<1::size(1), rest::bitstring>>), do: [1 | binary_to_bits(rest)]
   def binary_to_bits(<<0::size(1), rest::bitstring>>), do: [-1 | binary_to_bits(rest)]
   def binary_to_bits(<<>>), do: []
