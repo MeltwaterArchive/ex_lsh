@@ -1,4 +1,6 @@
 defmodule ExLSH do
+  require IEx
+
   @moduledoc """
   TODO Documentation for ExLSH.
   """
@@ -114,14 +116,38 @@ defmodule ExLSH do
   end
 
   @doc """
-  Add two lists.
+  Add a list of lists.
   """
-  def add_vectors(vectors) do
-    vectors
-    |> List.zip()
-    |> Enum.map(&Tuple.to_list/1)
-    |> Enum.map(&Enum.sum/1)
+  def add_vectors([v1 | vectors]) do
+    Enum.reduce(vectors, v1, &sum_vectors/2)
   end
+
+  @doc """
+  Add two vectors.
+  """
+  def sum_vectors([l0, l1, l2, l3, l4, l5, l6, l7 | rest_l], [
+        r0,
+        r1,
+        r2,
+        r3,
+        r4,
+        r5,
+        r6,
+        r7 | rest_r
+      ]) do
+    [
+      l0 + r0,
+      l1 + r1,
+      l2 + r2,
+      l3 + r3,
+      l4 + r4,
+      l5 + r5,
+      l6 + r6,
+      l7 + r7 | sum_vectors(rest_l, rest_r)
+    ]
+  end
+
+  def sum_vectors([], []), do: []
 
   @doc """
   Convert a list of ints to bits: positive ints become a 1, others: 0.
@@ -143,7 +169,26 @@ defmodule ExLSH do
   @doc """
   Convert a binary to a list of bits: 1 for 1, -1 for 0.
   """
-  def binary_to_bits(<<1::size(1), rest::bitstring>>), do: [1 | binary_to_bits(rest)]
-  def binary_to_bits(<<0::size(1), rest::bitstring>>), do: [-1 | binary_to_bits(rest)]
+  # def binary_to_bits(<<1::size(1), rest::bitstring>>), do: [1 | binary_to_bits(rest)]
+  # def binary_to_bits(<<0::size(1), rest::bitstring>>), do: [-1 | binary_to_bits(rest)]
+  def binary_to_bits(
+        <<b0::size(1), b1::size(1), b2::size(1), b3::size(1), b4::size(1), b5::size(1),
+          b6::size(1), b7::size(1), rest::bitstring>>
+      ) do
+    [
+      bit(b0),
+      bit(b1),
+      bit(b2),
+      bit(b3),
+      bit(b4),
+      bit(b5),
+      bit(b6),
+      bit(b7) | binary_to_bits(rest)
+    ]
+  end
+
   def binary_to_bits(<<>>), do: []
+
+  def bit(0), do: -1
+  def bit(1), do: 1
 end
