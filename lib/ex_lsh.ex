@@ -118,9 +118,13 @@ defmodule ExLSH do
   @doc """
   Add a list of lists.
   """
+  def add_vectors([v]), do: v
+
   def add_vectors([v1 | vectors]) do
     Enum.reduce(vectors, v1, &sum_vectors/2)
   end
+
+  def add_vectors([]), do: []
 
   @doc """
   Add two vectors.
