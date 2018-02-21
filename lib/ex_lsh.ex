@@ -1,6 +1,4 @@
 defmodule ExLSH do
-  require IEx
-
   @moduledoc """
   TODO Documentation for ExLSH.
   """
@@ -40,13 +38,15 @@ defmodule ExLSH do
         tokenizer \\ &tokenize_words/1,
         filter \\ &filter/1
       ) do
+    hash_width = bit_size(hasher.("foo"))
+
     text
     |> normalizer.()
     |> tokenizer.()
     |> filter.()
     |> shingle(shingle_width)
     |> Enum.map(fn shingle -> hash(shingle, hasher) end)
-    |> add_vectors()
+    |> add_vectors(hash_width)
     |> ints_to_bits()
     |> bits_to_binary()
   end
@@ -104,8 +104,7 @@ defmodule ExLSH do
   containing [-1,1].
   """
   def hash(words, hash_function) do
-    h = hash_function.(Enum.join(words, " "))
-    binary_to_bits(h)
+    words |> Enum.join(" ") |> hash_function.()
   end
 
   @doc """
@@ -116,42 +115,32 @@ defmodule ExLSH do
   end
 
   @doc """
-  Add a list of lists.
+  Aggregate a list of binaries using a SimHash algorithm.
   """
-  def add_vectors([v]), do: v
-
-  def add_vectors([v1 | vectors]) do
-    Enum.reduce(vectors, v1, &sum_vectors/2)
+  def add_vectors(vectors, hash_width) do
+    seed = List.duplicate(0, hash_width)
+    Enum.reduce(vectors, seed, &sum_binaries/2)
   end
 
-  def add_vectors([]), do: []
-
-  @doc """
-  Add two vectors.
-  """
-  def sum_vectors([l0, l1, l2, l3, l4, l5, l6, l7 | rest_l], [
-        r0,
-        r1,
-        r2,
-        r3,
-        r4,
-        r5,
-        r6,
-        r7 | rest_r
-      ]) do
+  def sum_binaries(
+        <<b0::size(1), b1::size(1), b2::size(1), b3::size(1), b4::size(1), b5::size(1),
+          b6::size(1), b7::size(1), bin_rest::bitstring>>,
+        [agg0, agg1, agg2, agg3, agg4, agg5, agg6, agg7 | agg_rest]
+      ) do
     [
-      l0 + r0,
-      l1 + r1,
-      l2 + r2,
-      l3 + r3,
-      l4 + r4,
-      l5 + r5,
-      l6 + r6,
-      l7 + r7 | sum_vectors(rest_l, rest_r)
+      agg0 + b0 * 2 - 1,
+      agg1 + b1 * 2 - 1,
+      agg2 + b2 * 2 - 1,
+      agg3 + b3 * 2 - 1,
+      agg4 + b4 * 2 - 1,
+      agg5 + b5 * 2 - 1,
+      agg6 + b6 * 2 - 1,
+      agg7 + b7 * 2 - 1
+      | sum_binaries(bin_rest, agg_rest)
     ]
   end
 
-  def sum_vectors([], []), do: []
+  def sum_binaries(<<>>, []), do: []
 
   @doc """
   Convert a list of ints to bits: positive ints become a 1, others: 0.
@@ -169,30 +158,4 @@ defmodule ExLSH do
     |> Enum.map(fn bits -> Integer.undigits(bits, 2) end)
     |> :binary.list_to_bin()
   end
-
-  @doc """
-  Convert a binary to a list of bits: 1 for 1, -1 for 0.
-  """
-  # def binary_to_bits(<<1::size(1), rest::bitstring>>), do: [1 | binary_to_bits(rest)]
-  # def binary_to_bits(<<0::size(1), rest::bitstring>>), do: [-1 | binary_to_bits(rest)]
-  def binary_to_bits(
-        <<b0::size(1), b1::size(1), b2::size(1), b3::size(1), b4::size(1), b5::size(1),
-          b6::size(1), b7::size(1), rest::bitstring>>
-      ) do
-    [
-      bit(b0),
-      bit(b1),
-      bit(b2),
-      bit(b3),
-      bit(b4),
-      bit(b5),
-      bit(b6),
-      bit(b7) | binary_to_bits(rest)
-    ]
-  end
-
-  def binary_to_bits(<<>>), do: []
-
-  def bit(0), do: -1
-  def bit(1), do: 1
 end

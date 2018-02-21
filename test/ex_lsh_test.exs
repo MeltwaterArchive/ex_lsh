@@ -13,6 +13,13 @@ defmodule ExLSHTest do
     assert ExLSH.wordwise_lsh(s1) == ExLSH.wordwise_lsh(s2)
   end
 
+  test "Works with CRC32" do
+    s1 = repeat("foo bar baz", 100)
+    s2 = repeat("foo bar baz", 200)
+    crc32 = fn s -> s |> :erlang.crc32() |> :binary.encode_unsigned() end
+    assert ExLSH.lsh(s1, 3, crc32) == ExLSH.lsh(s2, 3, crc32)
+  end
+
   def similarity(hash1, hash2) do
     1.0 - hamming_distance(hash_to_bin(hash1), hash_to_bin(hash2)) / length(hash_to_bin(hash1))
   end
@@ -33,6 +40,6 @@ defmodule ExLSHTest do
   def hash_to_bin(<<>>), do: []
 
   def repeat(s, times) do
-    1..times |> Enum.map(fn _ -> s end) |> Enum.join(" ")
+    s |> List.duplicate(times) |> Enum.join(" ")
   end
 end
