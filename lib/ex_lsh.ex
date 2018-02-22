@@ -3,9 +3,6 @@ defmodule ExLSH do
   TODO Documentation for ExLSH.
   """
 
-  # see :crypto.supports()[:hashs] for all available hash functions on your platform
-  @default_hash :md5
-
   @spec lsh(
           String.t(),
           pos_integer,
@@ -23,7 +20,9 @@ defmodule ExLSH do
   - `shingle_width`: if given 1, it will use the "bag of words" approach.
     Given an int > 1, it will compute hashes of n-grams of the given width.
   - `hasher`: a function that takes an IOList and returns its hash in a
-    `:binary`. LSH computation is significantly faster on shorter hashes.
+    `:binary`. LSH computation is significantly faster on shorter hashes. See
+    :crypto.supports()[:hashs] for all available hash functions on your
+    platform
   - `normalizer`: a function that takes a string and returns a normalized string
   - `tokenizer`: a function that takes a normalized string and returns
     tokens, e.g. graphemes or words
@@ -103,7 +102,7 @@ defmodule ExLSH do
   Default hash, uses :crypto.hash(:md5)
   """
   def default_hash(message) do
-    :crypto.hash(@default_hash, message)
+    :erlang.md5(message)
   end
 
   @doc """
