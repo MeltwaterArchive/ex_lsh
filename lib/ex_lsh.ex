@@ -9,7 +9,7 @@ defmodule ExLSH do
   @spec lsh(
           String.t(),
           pos_integer,
-          function(String.t()) :: binary(),
+          function(list(String.t())) :: binary(),
           function(String.t()) :: String.t(),
           function(String.t()) :: list(String.t()),
           function(list(String.t())) :: String.t()
@@ -22,7 +22,7 @@ defmodule ExLSH do
   The following parameters are configurable:
   - `shingle_width`: if given 1, it will use the "bag of words" approach.
     Given an int > 1, it will compute hashes of n-grams of the given width.
-  - `hasher`: a function that takes a string and returns its hash in a
+  - `hasher`: a function that takes an IOList and returns its hash in a
     `:binary`. LSH computation is significantly faster on shorter hashes.
   - `normalizer`: a function that takes a string and returns a normalized string
   - `tokenizer`: a function that takes a normalized string and returns
@@ -45,7 +45,7 @@ defmodule ExLSH do
     |> tokenizer.()
     |> filter.()
     |> shingle(shingle_width)
-    |> Enum.map(fn shingle -> hash(shingle, hasher) end)
+    |> Enum.map(hasher)
     |> add_vectors(hash_width)
     |> ints_to_bits()
     |> bits_to_binary()
@@ -96,15 +96,7 @@ defmodule ExLSH do
   Converts a list of tokens into a list of overlapping lists.
   """
   def shingle(words, n) do
-    Enum.chunk_every(words, n, 1)
-  end
-
-  @doc """
-  Apply a hash function to a list of strings and return a binary list
-  containing [-1,1].
-  """
-  def hash(words, hash_function) do
-    words |> Enum.join(" ") |> hash_function.()
+    Enum.chunk_every(words, n, 1, :discard)
   end
 
   @doc """
@@ -155,7 +147,9 @@ defmodule ExLSH do
   def bits_to_binary(bits) do
     bits
     |> Enum.chunk_every(8)
-    |> Enum.map(fn bits -> Integer.undigits(bits, 2) end)
+    |> Enum.map(&undigits/1)
     |> :binary.list_to_bin()
   end
+
+  def undigits(bits), do: Integer.undigits(bits, 2)
 end
