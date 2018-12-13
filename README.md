@@ -33,4 +33,4 @@ TBD
 
 - [SimHash](https://github.com/UniversalAvenue/simhash-ex) is a very similar, but less versatile implementation that is focused on short strings only.
 - [Resemblance](https://github.com/matpalm/resemblance) explores simhash and sketching in Ruby. The author has documented his findings in a series of articles. You may want to make yourself familiar with [Part 3: The SimHash Algorithm](http://matpalm.com/resemblance/simhash/).
-- [Near-duplicate detection](https://moz.com/devblog/near-duplicate-detection/) is a very helpful article by Moz. It explains core concepts such as tokinzation, shingling, MinHash, SimHash, etc.
+- [Near-duplicate detection](https://moz.com/devblog/near-duplicate-detection/) is a very helpful article by Moz. It explains core concepts such as tokinization, shingling, MinHash, SimHash, etc.
