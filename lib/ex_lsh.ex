@@ -12,22 +12,22 @@ defmodule ExLSH do
           function(list(String.t())) :: String.t()
         ) :: binary
   @doc """
-  Compute an LSH/SimHash for a given text. 
+  Compute an LSH/SimHash for a given text.
 
   Returns a non-printable `:binary` of the hash.
 
   The following parameters are configurable:
   - `shingle_width`: if given 1, it will use the "bag of words" approach.
-    Given an int > 1, it will compute hashes of n-grams of the given width.
+  Given an int > 1, it will compute hashes of n-grams of the given width.
   - `hasher`: a function that takes an IOList and returns its hash in a
-    `:binary`. LSH computation is significantly faster on shorter hashes. See
-    :crypto.supports()[:hashs] for all available hash functions on your
-    platform
+  `:binary`. LSH computation is significantly faster on shorter hashes. See
+  :crypto.supports()[:hashs] for all available hash functions on your
+  platform
   - `normalizer`: a function that takes a string and returns a normalized string
   - `tokenizer`: a function that takes a normalized string and returns
-    tokens, e.g. graphemes or words
+  tokens, e.g. graphemes or words
   - `filter`: a functions that filters a list of tokens, e.g. removes
-    stop-words, non-ASCII chars, etc.
+  stop-words, non-ASCII chars, etc.
   """
   def lsh(
         text,
@@ -109,29 +109,17 @@ defmodule ExLSH do
   Aggregate a list of binaries using a SimHash algorithm.
   """
   def add_vectors(vectors, hash_width) do
-    seed = List.duplicate(0, hash_width)
-    Enum.reduce(vectors, seed, &sum_binaries/2)
-  end
+    matrix =
+      vectors
+      |> hashlist_to_matrex(hash_width)
+      |> Matrex.multiply(2)
+      |> Matrex.add(-1)
+      |> Matrex.transpose()
 
-  def sum_binaries(
-        <<b0::size(1), b1::size(1), b2::size(1), b3::size(1), b4::size(1), b5::size(1),
-          b6::size(1), b7::size(1), bin_rest::bitstring>>,
-        [agg0, agg1, agg2, agg3, agg4, agg5, agg6, agg7 | agg_rest]
-      ) do
-    [
-      agg0 + b0 * 2 - 1,
-      agg1 + b1 * 2 - 1,
-      agg2 + b2 * 2 - 1,
-      agg3 + b3 * 2 - 1,
-      agg4 + b4 * 2 - 1,
-      agg5 + b5 * 2 - 1,
-      agg6 + b6 * 2 - 1,
-      agg7 + b7 * 2 - 1
-      | sum_binaries(bin_rest, agg_rest)
-    ]
+    for i <- 1..hash_width do
+      matrix[i] |> Matrex.sum()
+    end
   end
-
-  def sum_binaries(<<>>, []), do: []
 
   @doc """
   Convert a list of ints to bits: positive ints become a 1, others: 0.
@@ -151,4 +139,76 @@ defmodule ExLSH do
   end
 
   def undigits(bits), do: Integer.undigits(bits, 2)
+
+  def digits(
+        <<b0::size(1), b1::size(1), b2::size(1), b3::size(1), b4::size(1), b5::size(1),
+          b6::size(1), b7::size(1)>>
+      ) do
+    [b0, b1, b2, b3, b4, b5, b6, b7]
+  end
+
+  def hashlist_to_matrex(vectors, hash_width) do
+    binvectors = Enum.reduce(vectors, <<>>, &concat/2)
+    rows = length(vectors)
+
+    header = <<
+      rows::integer-unsigned-little-32,
+      hash_width::integer-unsigned-little-32
+    >>
+
+    %Matrex{data: append_digits(binvectors, header)}
+  end
+
+  def concat(bin1, bin2) when is_binary(bin1) and is_binary(bin2) do
+    <<bin1::binary, bin2::binary>>
+  end
+
+  @doc """
+  Generates a pattern matcher for `count` leftmost bits of a binary and its
+  `rest`. Bit #0 goes into a variable `b0`, #1 into `b1` and so on.
+  """
+  defmacro match_bits(count, rest) do
+    # doing it backwards to be able to add the rest matcher and then flip
+    bits_match =
+      for i <- (count - 1)..0 do
+        {:::, [],
+         [
+           {:var!, [context: Elixir, import: Kernel], [{String.to_atom("b#{i}"), [], Elixir}]},
+           {:size, [], [1]}
+         ]}
+      end
+
+    rest_match =
+      quote do
+        unquote(rest) :: binary
+      end
+
+    {:<<>>, [], Enum.reverse([rest_match | bits_match])}
+  end
+
+  defmacro float_bits(count, agg) do
+    bits_bin =
+      for i <- 0..(count - 1) do
+        {:::, [],
+         [
+           {:var!, [context: Elixir, import: Kernel], [{String.to_atom("b#{i}"), [], Elixir}]},
+           quote do
+             float - little - 32
+           end
+         ]}
+      end
+
+    agg_bin =
+      quote do
+        unquote(agg) :: binary
+      end
+
+    {:<<>>, [], [agg_bin | bits_bin]}
+  end
+
+  def append_digits(<<>>, agg), do: agg
+
+  def append_digits(match_bits(32, rest), agg) do
+    append_digits(rest, float_bits(32, agg))
+  end
 end

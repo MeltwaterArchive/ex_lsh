@@ -401,4 +401,20 @@ clean = [
   "autem"
 ]
 
-ExLSH.lsh(clean, 3, &ExLSH.default_hash/1, & &1, & &1)
+# ExLSH.lsh(clean, 3, &ExLSH.default_hash/1, & &1, & &1)
+
+ExLSH.x_lsh(clean, 3, &ExLSH.default_hash/1, & &1, & &1, &ExLSH.add_vectors_transpose/2)
+# Benchee.run(%{
+#   "pre-matrex" => fn ->
+#     ExLSH.x_lsh(clean, 3, &ExLSH.default_hash/1, & &1, & &1, &ExLSH.add_vectors/2)
+#   end,
+#   "matrex-flatten" => fn ->
+#     ExLSH.x_lsh(clean, 3, &ExLSH.default_hash/1, & &1, & &1, &ExLSH.add_vectors_flatten/2)
+#   end,
+#   "matrex-construct" => fn ->
+#     ExLSH.x_lsh(clean, 3, &ExLSH.default_hash/1, & &1, & &1, &ExLSH.add_vectors_contruct/2)
+#   end,
+#   "matrex-macros" => fn ->
+#     ExLSH.x_lsh(clean, 3, &ExLSH.default_hash/1, & &1, & &1, &ExLSH.add_vectors_transpose/2)
+#   end
+# })
