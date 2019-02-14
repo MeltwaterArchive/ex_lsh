@@ -134,20 +134,11 @@ defmodule ExLSH do
   def bits_to_binary(bits) do
     bits
     |> Enum.chunk_every(8)
-    |> Enum.map(&undigits/1)
+    |> Enum.map(&Integer.undigits(&1, 2))
     |> :binary.list_to_bin()
   end
 
-  def undigits(bits), do: Integer.undigits(bits, 2)
-
-  def digits(
-        <<b0::size(1), b1::size(1), b2::size(1), b3::size(1), b4::size(1), b5::size(1),
-          b6::size(1), b7::size(1)>>
-      ) do
-    [b0, b1, b2, b3, b4, b5, b6, b7]
-  end
-
-  def hashlist_to_matrex(vectors, hash_width) do
+  defp hashlist_to_matrex(vectors, hash_width) do
     binvectors = Enum.reduce(vectors, <<>>, &concat/2)
     rows = length(vectors)
 
@@ -159,15 +150,14 @@ defmodule ExLSH do
     %Matrex{data: append_digits(binvectors, header)}
   end
 
-  def concat(bin1, bin2) when is_binary(bin1) and is_binary(bin2) do
+  defp concat(bin1, bin2) when is_binary(bin1) and is_binary(bin2) do
     <<bin1::binary, bin2::binary>>
   end
 
-  @doc """
-  Generates a pattern matcher for `count` leftmost bits of a binary and its
-  `rest`. Bit #0 goes into a variable `b0`, #1 into `b1` and so on.
-  """
-  defmacro match_bits(count, rest) do
+  # Generates a pattern matcher for `count` leftmost bits of a binary and its
+  # `rest`. Bit #0 goes into a variable `b0`, #1 into `b1` and so on. Use
+  # together with `float_bits`.
+  defmacrop match_bits(count, rest) do
     # doing it backwards to be able to add the rest matcher and then flip
     bits_match =
       for i <- (count - 1)..0 do
@@ -186,7 +176,9 @@ defmodule ExLSH do
     {:<<>>, [], Enum.reverse([rest_match | bits_match])}
   end
 
-  defmacro float_bits(count, agg) do
+  # Outputs bits previously matched with `match_bits/2` to a binary as floats.
+  # This is used to construct a Matrex.
+  defmacrop float_bits(count, agg) do
     bits_bin =
       for i <- 0..(count - 1) do
         {:::, [],
@@ -206,9 +198,11 @@ defmodule ExLSH do
     {:<<>>, [], [agg_bin | bits_bin]}
   end
 
-  def append_digits(<<>>, agg), do: agg
+  defp append_digits(<<>>, agg), do: agg
+  
 
-  def append_digits(match_bits(32, rest), agg) do
-    append_digits(rest, float_bits(32, agg))
+  # Generate bit aggregators for all common hash function bit widths
+  for i <- [512, 384, 256, 224, 160, 128, 64, 32, 8] do
+    defp append_digits(match_bits(unquote(i), rest), agg), do: append_digits(rest, float_bits(unquote(i), agg))
   end
 end
