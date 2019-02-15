@@ -21,7 +21,7 @@ defmodule ExLSH.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:matrex, git: "git@github.com:soundmonster/matrex", branch: "fix_blas_ldflag_alpine"}
+      {:matrex, git: "https://github.com/versilov/matrex.git", ref: "7abf3fdb79dd1fad8aa077d00e3ff96d4c21ea4e"}
       # {:dep_from_hexpm, "~> 0.3.0"},
       # {:dep_from_git, git: "https://github.com/elixir-lang/my_dep.git", tag: "0.1.0"},
     ]
