@@ -199,10 +199,10 @@ defmodule ExLSH do
   end
 
   defp append_digits(<<>>, agg), do: agg
-  
 
   # Generate bit aggregators for all common hash function bit widths
   for i <- [512, 384, 256, 224, 160, 128, 64, 32, 8] do
-    defp append_digits(match_bits(unquote(i), rest), agg), do: append_digits(rest, float_bits(unquote(i), agg))
+    defp append_digits(match_bits(unquote(i), rest), agg),
+      do: append_digits(rest, float_bits(unquote(i), agg))
   end
 end
