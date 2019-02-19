@@ -9,8 +9,7 @@ output vectors for similar inputs. It can be used for clustering and
 
 ## Installation
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `ex_lsh` to your list of dependencies in `mix.exs`:
+Add `ex_lsh` to your list of dependencies in `mix.exs`:
 
 ```elixir
 def deps do

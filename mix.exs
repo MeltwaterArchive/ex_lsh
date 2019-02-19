@@ -45,6 +45,7 @@ defmodule ExLSH.MixProject do
     [
       licenses: ["Apache 2.0"],
       links: %{ "GitHub" => "https://github.com/meltwater/ex_lsh" },
+      organization: "meltwater",
     ]
   end
 end
