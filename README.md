@@ -9,25 +9,29 @@ output vectors for similar inputs. It can be used for clustering and
 
 ## Installation
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `ex_lsh` to your list of dependencies in `mix.exs`:
+Add `ex_lsh` to your list of dependencies in `mix.exs`:
 
 ```elixir
 def deps do
   [
-    {:ex_lsh, git: "git@github.com:meltwater/ex_lsh", tag: "v0.2.0"}
+    {:ex_lsh, version: "~> 0.4"}
   ]
 end
 ```
 
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at [https://hexdocs.pm/ex_lsh](https://hexdocs.pm/ex_lsh).
+ExLSH delegates the number crunching to on an external library called Matrex, which itself uses NIFs. 
+If you have trouble compiling it, export the env var `MATREX_BLAS=noblas mix compile` or refer to its installation instructions on (github.com/versilov/matrex#installation)[https://github.com/versilov/matrex#installation].
 
 ## Usage
 
-TBD
+```elixir
+"Lorem ipsum dolor sit amet"
+|> ExLSH.lsh()
+|> :base64.encode()
+```
 
+## Docs
+see [hexdocs.pm/ex_lsh](https://hexdocs.pm/ex_lsh)
 
 ## Credits
 
