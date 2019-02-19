@@ -143,6 +143,9 @@ defmodule ExLSH do
     for i <- 1..hash_width do
       matrix[i] |> Matrex.sum()
     end
+
+    acc = List.duplicate(0, hash_width)
+    Enum.reduce(vectors, acc, &agg_bits/2)
   end
 
   # Convert a list of ints to bits: positive ints become a 1, others: 0.
@@ -196,6 +199,7 @@ defmodule ExLSH do
     {:<<>>, [], Enum.reverse([rest_match | bits_match])}
   end
 
+
   # Outputs bits previously matched with `match_bits/2` to a binary as floats.
   # This is used to construct a Matrex.
   defmacrop float_bits(count, agg) do
@@ -225,4 +229,23 @@ defmodule ExLSH do
     defp append_digits(match_bits(unquote(i), rest), agg),
       do: append_digits(rest, float_bits(unquote(i), agg))
   end
+
+  def agg_bits(
+        match_bits(8, bin_rest),
+        [acc0, acc1, acc2, acc3, acc4, acc5, acc6, acc7 | acc_rest]
+      ) do
+    [
+      acc0 + (b0 * 2 - 1),
+      acc1 + (b1 * 2 - 1),
+      acc2 + (b2 * 2 - 1),
+      acc3 + (b3 * 2 - 1),
+      acc4 + (b4 * 2 - 1),
+      acc5 + (b5 * 2 - 1),
+      acc6 + (b6 * 2 - 1),
+      acc7 + (b7 * 2 - 1)
+      | agg_bits(bin_rest, acc_rest)
+    ]
+  end
+
+  def agg_bits(<<>>, []), do: []
 end
