@@ -1,22 +1,35 @@
 defmodule ExLSH do
   @moduledoc """
   Calculates a locality sensitive hash for text.
+
+  ## Examples:
+
+      iex> "Lorem ipsum dolor sit amet"
+      ...> |> ExLSH.lsh()
+      ...> |> :base64.encode()
+      "uX05itKaghA0gQHCwDCIFg=="
+
+      iex> "Lorem ipsum dolor sit amet"
+      ...> |> ExLSH.lsh(2, &:crypto.hash(:sha, &1))
+      ...> |> :base64.encode()
+      "VhW06EEJyWQA1gKIAAlQgI4NHUE="
+
   """
 
   @spec lsh(
           String.t(),
           pos_integer,
-          function(list(String.t())) :: binary(),
-          function(String.t()) :: String.t(),
-          function(String.t()) :: list(String.t()),
-          function(list(String.t())) :: String.t()
+          (iodata() -> binary()),
+          (String.t() -> String.t()),
+          (String.t() -> list(String.t())),
+          (list(String.t()) -> list(String.t()))
         ) :: binary
-  @doc """
+
+  @doc ~S"""
   Compute an LSH/SimHash for a given text.
 
   Returns a non-printable `:binary` of the hash.
 
-  The following parameters are configurable:
   ## The following parameters are configurable:
   - `shingle_width`: if given 1, it will use the "bag of words" approach.
   Given an int > 1, it will compute hashes of n-grams of the given width.
@@ -31,17 +44,16 @@ defmodule ExLSH do
   stop-words, non-ASCII chars, etc.
 
   ## Examples:
-  ```
-    iex> "Lorem ipsum dolor sit amet"
-    ...> |> ExLSH.lsh()
-    ...> |> :base64.encode()
-    "uX05itKaghA0gQHCwDCIFg=="
 
-    iex> "Lorem ipsum dolor sit amet"
-    ...> |> ExLSH.lsh(2, &:crypto.hash(:sha, &1))
-    ...> |> :base64.encode()
-    "VhW06EEJyWQA1gKIAAlQgI4NHUE="
-  ```
+      iex> "Lorem ipsum dolor sit amet"
+      ...> |> ExLSH.lsh()
+      ...> |> :base64.encode()
+      "uX05itKaghA0gQHCwDCIFg=="
+
+      iex> "Lorem ipsum dolor sit amet"
+      ...> |> ExLSH.lsh(2, &:crypto.hash(:sha, &1))
+      ...> |> :base64.encode()
+      "VhW06EEJyWQA1gKIAAlQgI4NHUE="
 
   """
   def lsh(
@@ -104,12 +116,11 @@ defmodule ExLSH do
   @doc """
   A noop filter.
   """
+  @spec filter(String.t()) :: String.t()
   def filter(words), do: words
 
-  @doc """
-  Converts a list of tokens into a list of overlapping lists.
-  """
-  def shingle(words, n) do
+  # Converts a list of tokens into a list of overlapping lists.
+  defp shingle(words, n) do
     Enum.chunk_every(words, n, 1, :discard)
   end
 
@@ -120,10 +131,8 @@ defmodule ExLSH do
     :erlang.md5(message)
   end
 
-  @doc """
-  Aggregate a list of binaries using a SimHash algorithm.
-  """
-  def add_vectors(vectors, hash_width) do
+  # Aggregate a list of binaries using a SimHash algorithm.
+  defp add_vectors(vectors, hash_width) do
     matrix =
       vectors
       |> hashlist_to_matrex(hash_width)
@@ -136,17 +145,13 @@ defmodule ExLSH do
     end
   end
 
-  @doc """
-  Convert a list of ints to bits: positive ints become a 1, others: 0.
-  """
-  def ints_to_bits([head | tail]) when head > 0, do: [1 | ints_to_bits(tail)]
-  def ints_to_bits([_head | tail]), do: [0 | ints_to_bits(tail)]
-  def ints_to_bits([]), do: []
+  # Convert a list of ints to bits: positive ints become a 1, others: 0.
+  defp ints_to_bits([head | tail]) when head > 0, do: [1 | ints_to_bits(tail)]
+  defp ints_to_bits([_head | tail]), do: [0 | ints_to_bits(tail)]
+  defp ints_to_bits([]), do: []
 
-  @doc """
-  Convert a list of bits represented by integers to a binary.
-  """
-  def bits_to_binary(bits) do
+  # Convert a list of bits represented by integers to a binary.
+  defp bits_to_binary(bits) do
     bits
     |> Enum.chunk_every(8)
     |> Enum.map(&Integer.undigits(&1, 2))
