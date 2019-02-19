@@ -19,15 +19,16 @@ def deps do
   ]
 end
 ```
-
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at [https://hexdocs.pm/ex_lsh](https://hexdocs.pm/ex_lsh).
-
 ## Usage
 
-TBD
+```elixir
+"Lorem ipsum dolor sit amet"
+|> ExLSH.lsh()
+|> :base64.encode()
+```
 
+## Docs
+see [hexdocs.pm/ex_lsh](https://hexdocs.pm/ex_lsh)
 
 ## Credits
 

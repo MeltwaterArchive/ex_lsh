@@ -1,6 +1,6 @@
 defmodule ExLSH do
   @moduledoc """
-  TODO Documentation for ExLSH.
+  Calculates a locality sensitive hash for text.
   """
 
   @spec lsh(
@@ -17,6 +17,7 @@ defmodule ExLSH do
   Returns a non-printable `:binary` of the hash.
 
   The following parameters are configurable:
+  ## The following parameters are configurable:
   - `shingle_width`: if given 1, it will use the "bag of words" approach.
   Given an int > 1, it will compute hashes of n-grams of the given width.
   - `hasher`: a function that takes an IOList and returns its hash in a
@@ -28,6 +29,20 @@ defmodule ExLSH do
   tokens, e.g. graphemes or words
   - `filter`: a functions that filters a list of tokens, e.g. removes
   stop-words, non-ASCII chars, etc.
+
+  ## Examples:
+  ```
+    iex> "Lorem ipsum dolor sit amet"
+    ...> |> ExLSH.lsh()
+    ...> |> :base64.encode()
+    "uX05itKaghA0gQHCwDCIFg=="
+
+    iex> "Lorem ipsum dolor sit amet"
+    ...> |> ExLSH.lsh(2, &:crypto.hash(:sha, &1))
+    ...> |> :base64.encode()
+    "VhW06EEJyWQA1gKIAAlQgI4NHUE="
+  ```
+
   """
   def lsh(
         text,
@@ -99,7 +114,7 @@ defmodule ExLSH do
   end
 
   @doc """
-  Default hash, uses :crypto.hash(:md5)
+  Default hash, uses `:crypto.hash(:md5)`
   """
   def default_hash(message) do
     :erlang.md5(message)
