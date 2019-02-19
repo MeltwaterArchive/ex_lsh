@@ -180,13 +180,14 @@ defmodule ExLSH do
   # Generates a pattern matcher for `count` leftmost bits of a binary and its
   # `rest`. Bit #0 goes into a variable `b0`, #1 into `b1` and so on. Use
   # together with `float_bits`.
-  defmacrop match_bits(count, rest) do
+  defmacrop match_bits(prefix, count, rest) do
     # doing it backwards to be able to add the rest matcher and then flip
     bits_match =
       for i <- (count - 1)..0 do
         {:::, [],
          [
-           {:var!, [context: Elixir, import: Kernel], [{String.to_atom("b#{i}"), [], Elixir}]},
+           {:var!, [context: Elixir, import: Kernel],
+            [{String.to_atom("#{prefix}#{i}"), [], Elixir}]},
            {:size, [], [1]}
          ]}
       end
@@ -199,15 +200,42 @@ defmodule ExLSH do
     {:<<>>, [], Enum.reverse([rest_match | bits_match])}
   end
 
+  # Generates a pattern matcher for `count` leftmost elements of a list and its
+  # tail. Element #0 goes into a variable `<prefix>0`, #1 into `<prefix>1` and
+  # so on.
+  defmacrop match_list(prefix, count, rest) do
+    # doing it backwards to be able to add the rest matcher and then flip
+    list_match =
+      for i <- (count - 2)..0 do
+        {:var!, [context: Elixir, import: Kernel],
+         [{String.to_atom("#{prefix}#{i}"), [], Elixir}]}
+      end
+
+    rest_var =
+      quote do
+        unquote(rest)
+      end
+
+    rest_match =
+      {:|, {},
+       [
+         {:var!, [context: Elixir, import: Kernel],
+          [{String.to_atom("#{prefix}#{count - 1}"), [], Elixir}]},
+         rest_var
+       ]}
+
+    Enum.reverse([rest_match | list_match])
+  end
 
   # Outputs bits previously matched with `match_bits/2` to a binary as floats.
   # This is used to construct a Matrex.
-  defmacrop float_bits(count, agg) do
+  defmacrop float_bits(prefix, count, agg) do
     bits_bin =
       for i <- 0..(count - 1) do
         {:::, [],
          [
-           {:var!, [context: Elixir, import: Kernel], [{String.to_atom("b#{i}"), [], Elixir}]},
+           {:var!, [context: Elixir, import: Kernel],
+            [{String.to_atom("#{prefix}#{i}"), [], Elixir}]},
            quote do
              float - little - 32
            end
@@ -226,13 +254,13 @@ defmodule ExLSH do
 
   # Generate bit aggregators for all common hash function bit widths
   for i <- [512, 384, 256, 224, 160, 128, 64, 32, 8] do
-    defp append_digits(match_bits(unquote(i), rest), agg),
-      do: append_digits(rest, float_bits(unquote(i), agg))
+    defp append_digits(match_bits(:b, unquote(i), rest), agg),
+      do: append_digits(rest, float_bits(:b, unquote(i), agg))
   end
 
   def agg_bits(
-        match_bits(8, bin_rest),
-        [acc0, acc1, acc2, acc3, acc4, acc5, acc6, acc7 | acc_rest]
+        match_bits(:b, 8, bin_rest),
+        match_list(:acc, 8, acc_rest)
       ) do
     [
       acc0 + (b0 * 2 - 1),
