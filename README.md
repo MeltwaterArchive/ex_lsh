@@ -14,7 +14,7 @@ Add `ex_lsh` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:ex_lsh, git: "git@github.com:meltwater/ex_lsh", tag: "v0.2.0"}
+    {:ex_lsh, version: "~> 0.4"}
   ]
 end
 ```
