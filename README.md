@@ -18,6 +18,10 @@ def deps do
   ]
 end
 ```
+
+ExLSH delegates the number crunching to on an external library called Matrex, which itself uses NIFs. 
+If you have trouble compiling it, export the env var `MATREX_BLAS=noblas mix compile` or refer to its installation instructions on (github.com/versilov/matrex#installation)[https://github.com/versilov/matrex#installation].
+
 ## Usage
 
 ```elixir
