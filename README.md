@@ -30,6 +30,9 @@ end
 ## Docs
 see [hexdocs.pm/ex_lsh](https://hexdocs.pm/ex_lsh)
 
+## Contributions
+Please fork the project and submit a PR.
+
 ## Credits
 
 - [SimHash](https://github.com/UniversalAvenue/simhash-ex) is a very similar, but less versatile implementation that is focused on short strings only.
