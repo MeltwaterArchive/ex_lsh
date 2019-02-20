@@ -24,7 +24,7 @@ end
 ```elixir
 "Lorem ipsum dolor sit amet"
 |> ExLSH.lsh()
-|> :base64.encode()
+|> Base.encode64()
 ```
 
 ## Docs

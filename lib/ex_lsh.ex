@@ -6,12 +6,12 @@ defmodule ExLSH do
 
       iex> "Lorem ipsum dolor sit amet"
       ...> |> ExLSH.lsh()
-      ...> |> :base64.encode()
+      ...> |> Base.encode64()
       "uX05itKaghA0gQHCwDCIFg=="
 
       iex> "Lorem ipsum dolor sit amet"
       ...> |> ExLSH.lsh(2, &:crypto.hash(:sha, &1))
-      ...> |> :base64.encode()
+      ...> |> Base.encode64()
       "VhW06EEJyWQA1gKIAAlQgI4NHUE="
 
   """
@@ -47,12 +47,12 @@ defmodule ExLSH do
 
       iex> "Lorem ipsum dolor sit amet"
       ...> |> ExLSH.lsh()
-      ...> |> :base64.encode()
+      ...> |> Base.encode64()
       "uX05itKaghA0gQHCwDCIFg=="
 
       iex> "Lorem ipsum dolor sit amet"
       ...> |> ExLSH.lsh(2, &:crypto.hash(:sha, &1))
-      ...> |> :base64.encode()
+      ...> |> Base.encode64()
       "VhW06EEJyWQA1gKIAAlQgI4NHUE="
 
   """
