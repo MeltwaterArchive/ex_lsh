@@ -36,7 +36,7 @@ defmodule ExLSH.MixProject do
 
   defp package() do
     [
-      licenses: ["MIT"],
+      licenses: ["Apache 2.0"],
       links: %{"GitHub" => "https://github.com/meltwater/ex_lsh"}
     ]
   end
