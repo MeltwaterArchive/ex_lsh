@@ -9,7 +9,6 @@ defmodule ExLSH.MixProject do
       elixir: "~> 1.4",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
-
       name: "ExLSH",
       source_url: "https://github.com/meltwater/ex_lsh",
       homepage_url: "https://hexdocs.pm/ex_lsh",
@@ -17,8 +16,7 @@ defmodule ExLSH.MixProject do
         main: "ExLSH",
         extras: ["README.md"]
       ],
-
-      package: package(),
+      package: package()
     ]
   end
 
@@ -28,7 +26,7 @@ defmodule ExLSH.MixProject do
 
   defp deps do
     [
-      {:ex_doc, "~> 0.18", only: :dev, runtime: false},
+      {:ex_doc, "~> 0.18", only: :dev, runtime: false}
     ]
   end
 
@@ -39,7 +37,7 @@ defmodule ExLSH.MixProject do
   defp package() do
     [
       licenses: ["MIT"],
-      links: %{ "GitHub" => "https://github.com/meltwater/ex_lsh" },
+      links: %{"GitHub" => "https://github.com/meltwater/ex_lsh"}
     ]
   end
 end
