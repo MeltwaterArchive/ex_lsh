@@ -134,7 +134,7 @@ defmodule ExLSH do
   # Aggregate a list of binaries using a SimHash algorithm.
   defp add_vectors(vectors, hash_width) do
     acc = List.duplicate(0, hash_width)
-    Enum.reduce(vectors, acc, &agg_bits/2)
+    Enum.reduce(vectors, acc, &vector_reducer/2)
   end
 
   # Convert a list of ints to bits: positive ints become a 1, others: 0.
@@ -149,6 +149,37 @@ defmodule ExLSH do
     |> Enum.map(&Integer.undigits(&1, 2))
     |> :binary.list_to_bin()
   end
+
+  # The following code aggregates hashes of shingles onto a list of ints.
+  # To do this efficiently, we generate a set of functions that pattern-match
+  # on the individual bits as wide as possible. An example implementation for 2
+  # bits looks like this:
+  #
+  # def vector_reducer(
+  #       <<b0::size(1), b1::size(1), b_rest::binary>>,
+  #       [a0, a1 | a_rest]
+  #     ) do
+  #   [
+  #     a0 + b0 * 2 - 1,
+  #     a1 + b1 * 2 - 1 | vector_reducer(b_rest, a_rest)
+  #   ]
+  # end
+  # def vector_reducer(<<>>, []), do: []
+  #
+  # This would result in 64 recursions per shingle for a 128-bit hash. To speed
+  # things up, we try to match for as many bits as possible, and keep the
+  # recursion number low. Obviously, writing this out for more than 16 bits is
+  # unfeasible, so we have created a set of three macros:
+  # * `match_bits` for matching bits in the function header
+  # * `match_list` for matching list elements in the function header
+  # * `sum_bits` for the function body
+  # We generate function cases for 256, 128, 64, 32, and 8 bits in descending
+  # order, matching widest chunk first.
+  # These macros work, but have the following areas for improvement:
+  # * they are "unhygienic" since they define and leak variables into the
+  #   function scope using `Kernel.var!/1`. This could be improved by merging the
+  #   three macros into one that generates the whole function.
+  # * they use raw AST instead of quote/unquote in order to generate variables
 
   # Generates a pattern matcher for `count` leftmost bits of a binary and its
   # `rest`. Bit #0 goes into a variable `b0`, #1 into `b1` and so on.
@@ -228,14 +259,16 @@ defmodule ExLSH do
     Enum.reverse([tail_recursion | tl(elements)])
   end
 
-  defp agg_bits(<<>>, []), do: []
+  # Recursion base case
+  defp vector_reducer(<<>>, []), do: []
 
+  # Cases matching different bit widths, from wide to narrow
   for i <- [256, 128, 64, 32, 8] do
-    defp agg_bits(
+    defp vector_reducer(
            match_bits(:b, unquote(i), bin_rest),
            match_list(:acc, unquote(i), acc_rest)
          ) do
-      sum_bits(:b, bin_rest, :acc, acc_rest, unquote(i), :agg_bits)
+      sum_bits(:b, bin_rest, :acc, acc_rest, unquote(i), :vector_reducer)
     end
   end
 end
