@@ -11,3 +11,6 @@ matrix:
   exclude:
     - elixir: 1.8
       otp_release: 19.3
+branches:
+  only:
+  - master
