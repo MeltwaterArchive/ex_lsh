@@ -40,7 +40,6 @@ defmodule ExLSH.MixProject do
     [
       licenses: ["MIT"],
       links: %{ "GitHub" => "https://github.com/meltwater/ex_lsh" },
-      organization: "Meltwater",
     ]
   end
 end
