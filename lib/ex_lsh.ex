@@ -16,6 +16,8 @@ defmodule ExLSH do
 
   """
 
+  require ExLSH.BitMacro
+
   @spec lsh(
           String.t(),
           pos_integer,
@@ -150,6 +152,9 @@ defmodule ExLSH do
     |> :binary.list_to_bin()
   end
 
+  # Recursion base case
+  defp vector_reducer(<<>>, []), do: []
+
   # The following code aggregates hashes of shingles onto a list of ints.
   # To do this efficiently, we generate a set of functions that pattern-match
   # on the individual bits as wide as possible. An example implementation for 2
@@ -169,106 +174,8 @@ defmodule ExLSH do
   # This would result in 64 recursions per shingle for a 128-bit hash. To speed
   # things up, we try to match for as many bits as possible, and keep the
   # recursion number low. Obviously, writing this out for more than 16 bits is
-  # unfeasible, so we have created a set of three macros:
-  # * `match_bits` for matching bits in the function header
-  # * `match_list` for matching list elements in the function header
-  # * `sum_bits` for the function body
-  # We generate function cases for 256, 128, 64, 32, and 8 bits in descending
-  # order, matching widest chunk first.
-  # These macros work, but have the following areas for improvement:
-  # * they are "unhygienic" since they define and leak variables into the
-  #   function scope using `Kernel.var!/1`. This could be improved by merging the
-  #   three macros into one that generates the whole function.
-  # * they use raw AST instead of quote/unquote in order to generate variables
-
-  # Generates a pattern matcher for `count` leftmost bits of a binary and its
-  # `rest`. Bit #0 goes into a variable `b0`, #1 into `b1` and so on.
-  defmacrop match_bits(prefix, count, rest) do
-    # doing it backwards to be able to add the rest matcher and then flip
-    bits_match =
-      for i <- (count - 1)..0 do
-        {:::, [],
-         [
-           {:var!, [context: Elixir, import: Kernel],
-            [{String.to_atom("#{prefix}#{i}"), [], Elixir}]},
-           {:size, [], [1]}
-         ]}
-      end
-
-    rest_match =
-      quote do
-        unquote(rest) :: binary
-      end
-
-    {:<<>>, [], Enum.reverse([rest_match | bits_match])}
-  end
-
-  # Generates a pattern matcher for `count` leftmost elements of a list and its
-  # tail. Element #0 goes into a variable `<prefix>0`, #1 into `<prefix>1` and
-  # so on.
-  defmacrop match_list(prefix, count, rest) do
-    # doing it backwards to be able to add the rest matcher and then flip
-    list_match =
-      for i <- (count - 1)..0 do
-        {:var!, [context: Elixir, import: Kernel],
-         [{String.to_atom("#{prefix}#{i}"), [], Elixir}]}
-      end
-
-    rest_var =
-      quote do
-        unquote(rest)
-      end
-
-    rest_match =
-      {:|, {},
-       [
-         hd(list_match),
-         rest_var
-       ]}
-
-    Enum.reverse([rest_match | tl(list_match)])
-  end
-
-  # Sums a number of bits
-  defmacrop sum_bits(bit_prefix, bit_rest, acc_prefix, acc_rest, count, fun) do
-    elements =
-      for i <- (count - 1)..0 do
-        quote do
-          unquote(
-            {:var!, [context: Elixir, import: Kernel], [{:"#{acc_prefix}#{i}", [], Elixir}]}
-          ) +
-            2 *
-              unquote(
-                {:var!, [context: Elixir, import: Kernel], [{:"#{bit_prefix}#{i}", [], Elixir}]}
-              ) - 1
-        end
-      end
-
-    recursion =
-      quote do
-        unquote(fun)(unquote(bit_rest), unquote(acc_rest))
-      end
-
-    tail_recursion =
-      {:|, {},
-       [
-         hd(elements),
-         recursion
-       ]}
-
-    Enum.reverse([tail_recursion | tl(elements)])
-  end
-
-  # Recursion base case
-  defp vector_reducer(<<>>, []), do: []
-
-  # Cases matching different bit widths, from wide to narrow
+  # unfeasible, so we have built a macro, see `bitmacro.ex`.
   for i <- [256, 128, 64, 32, 8] do
-    defp vector_reducer(
-           match_bits(:b, unquote(i), bin_rest),
-           match_list(:acc, unquote(i), acc_rest)
-         ) do
-      sum_bits(:b, bin_rest, :acc, acc_rest, unquote(i), :vector_reducer)
-    end
+    ExLSH.BitMacro.vector_reducer(i)
   end
 end
