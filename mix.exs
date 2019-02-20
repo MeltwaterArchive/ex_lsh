@@ -28,7 +28,6 @@ defmodule ExLSH.MixProject do
 
   defp deps do
     [
-      {:matrex, git: "https://github.com/versilov/matrex.git", ref: "7abf3fdb79dd1fad8aa077d00e3ff96d4c21ea4e"},
       {:ex_doc, "~> 0.18", only: :dev, runtime: false},
     ]
   end
