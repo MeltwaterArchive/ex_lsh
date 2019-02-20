@@ -9,7 +9,6 @@ defmodule ExLSH.MixProject do
       elixir: "~> 1.4",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
-
       name: "ExLSH",
       source_url: "https://github.com/meltwater/ex_lsh",
       homepage_url: "https://hexdocs.pm/ex_lsh",
@@ -17,8 +16,7 @@ defmodule ExLSH.MixProject do
         main: "ExLSH",
         extras: ["README.md"]
       ],
-
-      package: package(),
+      package: package()
     ]
   end
 
@@ -28,8 +26,7 @@ defmodule ExLSH.MixProject do
 
   defp deps do
     [
-      {:matrex, git: "https://github.com/versilov/matrex.git", ref: "7abf3fdb79dd1fad8aa077d00e3ff96d4c21ea4e"},
-      {:ex_doc, "~> 0.18", only: :dev, runtime: false},
+      {:ex_doc, "~> 0.18", only: :dev, runtime: false}
     ]
   end
 
@@ -39,9 +36,8 @@ defmodule ExLSH.MixProject do
 
   defp package() do
     [
-      licenses: ["MIT"],
-      links: %{ "GitHub" => "https://github.com/meltwater/ex_lsh" },
-      organization: "Meltwater",
+      licenses: ["Apache 2.0"],
+      links: %{"GitHub" => "https://github.com/meltwater/ex_lsh"}
     ]
   end
 end

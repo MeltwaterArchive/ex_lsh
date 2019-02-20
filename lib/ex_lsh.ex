@@ -6,12 +6,12 @@ defmodule ExLSH do
 
       iex> "Lorem ipsum dolor sit amet"
       ...> |> ExLSH.lsh()
-      ...> |> :base64.encode()
+      ...> |> Base.encode64()
       "uX05itKaghA0gQHCwDCIFg=="
 
       iex> "Lorem ipsum dolor sit amet"
       ...> |> ExLSH.lsh(2, &:crypto.hash(:sha, &1))
-      ...> |> :base64.encode()
+      ...> |> Base.encode64()
       "VhW06EEJyWQA1gKIAAlQgI4NHUE="
 
   """
@@ -47,12 +47,12 @@ defmodule ExLSH do
 
       iex> "Lorem ipsum dolor sit amet"
       ...> |> ExLSH.lsh()
-      ...> |> :base64.encode()
+      ...> |> Base.encode64()
       "uX05itKaghA0gQHCwDCIFg=="
 
       iex> "Lorem ipsum dolor sit amet"
       ...> |> ExLSH.lsh(2, &:crypto.hash(:sha, &1))
-      ...> |> :base64.encode()
+      ...> |> Base.encode64()
       "VhW06EEJyWQA1gKIAAlQgI4NHUE="
 
   """
@@ -133,16 +133,8 @@ defmodule ExLSH do
 
   # Aggregate a list of binaries using a SimHash algorithm.
   defp add_vectors(vectors, hash_width) do
-    matrix =
-      vectors
-      |> hashlist_to_matrex(hash_width)
-      |> Matrex.multiply(2)
-      |> Matrex.add(-1)
-      |> Matrex.transpose()
-
-    for i <- 1..hash_width do
-      matrix[i] |> Matrex.sum()
-    end
+    acc = List.duplicate(0, hash_width)
+    Enum.reduce(vectors, acc, &vector_reducer/2)
   end
 
   # Convert a list of ints to bits: positive ints become a 1, others: 0.
@@ -158,32 +150,47 @@ defmodule ExLSH do
     |> :binary.list_to_bin()
   end
 
-  defp hashlist_to_matrex(vectors, hash_width) do
-    binvectors = Enum.reduce(vectors, <<>>, &concat/2)
-    rows = length(vectors)
-
-    header = <<
-      rows::integer-unsigned-little-32,
-      hash_width::integer-unsigned-little-32
-    >>
-
-    %Matrex{data: append_digits(binvectors, header)}
-  end
-
-  defp concat(bin1, bin2) when is_binary(bin1) and is_binary(bin2) do
-    <<bin1::binary, bin2::binary>>
-  end
+  # The following code aggregates hashes of shingles onto a list of ints.
+  # To do this efficiently, we generate a set of functions that pattern-match
+  # on the individual bits as wide as possible. An example implementation for 2
+  # bits looks like this:
+  #
+  # def vector_reducer(
+  #       <<b0::size(1), b1::size(1), b_rest::binary>>,
+  #       [a0, a1 | a_rest]
+  #     ) do
+  #   [
+  #     a0 + b0 * 2 - 1,
+  #     a1 + b1 * 2 - 1 | vector_reducer(b_rest, a_rest)
+  #   ]
+  # end
+  # def vector_reducer(<<>>, []), do: []
+  #
+  # This would result in 64 recursions per shingle for a 128-bit hash. To speed
+  # things up, we try to match for as many bits as possible, and keep the
+  # recursion number low. Obviously, writing this out for more than 16 bits is
+  # unfeasible, so we have created a set of three macros:
+  # * `match_bits` for matching bits in the function header
+  # * `match_list` for matching list elements in the function header
+  # * `sum_bits` for the function body
+  # We generate function cases for 256, 128, 64, 32, and 8 bits in descending
+  # order, matching widest chunk first.
+  # These macros work, but have the following areas for improvement:
+  # * they are "unhygienic" since they define and leak variables into the
+  #   function scope using `Kernel.var!/1`. This could be improved by merging the
+  #   three macros into one that generates the whole function.
+  # * they use raw AST instead of quote/unquote in order to generate variables
 
   # Generates a pattern matcher for `count` leftmost bits of a binary and its
-  # `rest`. Bit #0 goes into a variable `b0`, #1 into `b1` and so on. Use
-  # together with `float_bits`.
-  defmacrop match_bits(count, rest) do
+  # `rest`. Bit #0 goes into a variable `b0`, #1 into `b1` and so on.
+  defmacrop match_bits(prefix, count, rest) do
     # doing it backwards to be able to add the rest matcher and then flip
     bits_match =
       for i <- (count - 1)..0 do
         {:::, [],
          [
-           {:var!, [context: Elixir, import: Kernel], [{String.to_atom("b#{i}"), [], Elixir}]},
+           {:var!, [context: Elixir, import: Kernel],
+            [{String.to_atom("#{prefix}#{i}"), [], Elixir}]},
            {:size, [], [1]}
          ]}
       end
@@ -196,33 +203,72 @@ defmodule ExLSH do
     {:<<>>, [], Enum.reverse([rest_match | bits_match])}
   end
 
-  # Outputs bits previously matched with `match_bits/2` to a binary as floats.
-  # This is used to construct a Matrex.
-  defmacrop float_bits(count, agg) do
-    bits_bin =
-      for i <- 0..(count - 1) do
-        {:::, [],
-         [
-           {:var!, [context: Elixir, import: Kernel], [{String.to_atom("b#{i}"), [], Elixir}]},
-           quote do
-             float - little - 32
-           end
-         ]}
+  # Generates a pattern matcher for `count` leftmost elements of a list and its
+  # tail. Element #0 goes into a variable `<prefix>0`, #1 into `<prefix>1` and
+  # so on.
+  defmacrop match_list(prefix, count, rest) do
+    # doing it backwards to be able to add the rest matcher and then flip
+    list_match =
+      for i <- (count - 1)..0 do
+        {:var!, [context: Elixir, import: Kernel],
+         [{String.to_atom("#{prefix}#{i}"), [], Elixir}]}
       end
 
-    agg_bin =
+    rest_var =
       quote do
-        unquote(agg) :: binary
+        unquote(rest)
       end
 
-    {:<<>>, [], [agg_bin | bits_bin]}
+    rest_match =
+      {:|, {},
+       [
+         hd(list_match),
+         rest_var
+       ]}
+
+    Enum.reverse([rest_match | tl(list_match)])
   end
 
-  defp append_digits(<<>>, agg), do: agg
+  # Sums a number of bits
+  defmacrop sum_bits(bit_prefix, bit_rest, acc_prefix, acc_rest, count, fun) do
+    elements =
+      for i <- (count - 1)..0 do
+        quote do
+          unquote(
+            {:var!, [context: Elixir, import: Kernel], [{:"#{acc_prefix}#{i}", [], Elixir}]}
+          ) +
+            2 *
+              unquote(
+                {:var!, [context: Elixir, import: Kernel], [{:"#{bit_prefix}#{i}", [], Elixir}]}
+              ) - 1
+        end
+      end
 
-  # Generate bit aggregators for all common hash function bit widths
-  for i <- [512, 384, 256, 224, 160, 128, 64, 32, 8] do
-    defp append_digits(match_bits(unquote(i), rest), agg),
-      do: append_digits(rest, float_bits(unquote(i), agg))
+    recursion =
+      quote do
+        unquote(fun)(unquote(bit_rest), unquote(acc_rest))
+      end
+
+    tail_recursion =
+      {:|, {},
+       [
+         hd(elements),
+         recursion
+       ]}
+
+    Enum.reverse([tail_recursion | tl(elements)])
+  end
+
+  # Recursion base case
+  defp vector_reducer(<<>>, []), do: []
+
+  # Cases matching different bit widths, from wide to narrow
+  for i <- [256, 128, 64, 32, 8] do
+    defp vector_reducer(
+           match_bits(:b, unquote(i), bin_rest),
+           match_list(:acc, unquote(i), acc_rest)
+         ) do
+      sum_bits(:b, bin_rest, :acc, acc_rest, unquote(i), :vector_reducer)
+    end
   end
 end
