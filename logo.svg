@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="70.834641"
+   height="97.064911"
+   viewBox="0 0 18.741666 25.681757"
+   version="1.1"
+   id="svg6397"
+   inkscape:version="0.92.2 5c3e80d, 2017-08-06"
+   sodipodi:docname="logo.svg">
+  <defs
+     id="defs6391" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="4.7140169"
+     inkscape:cx="41.250985"
+     inkscape:cy="39.688658"
+     inkscape:document-units="mm"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     fit-margin-top="10"
+     fit-margin-left="10"
+     fit-margin-right="10"
+     fit-margin-bottom="10"
+     inkscape:window-width="1629"
+     inkscape:window-height="1005"
+     inkscape:window-x="51"
+     inkscape:window-y="1"
+     inkscape:window-maximized="1"
+     units="px" />
+  <metadata
+     id="metadata6394">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-84.335678,-133.65254)">
+    <path
+       sodipodi:nodetypes="ccccccccc"
+       inkscape:connector-curvature="0"
+       id="path6360"
+       d="m 86.981511,149.85608 h 0.0054 c 0,0 -0.0039,0.0717 -0.0054,0.10759 5e-5,3.71415 3.011071,6.72497 6.725209,6.72479 3.713975,-5e-5 6.72474,-3.01081 6.72479,-6.72479 -8.1e-4,-0.0359 -0.002,-0.0717 -0.004,-0.10759 h 0.004 c 0,-5.42965 -6.05682,-6.07592 -6.05682,-13.55771 -1.745883,0 -7.393179,7.48991 -7.393179,13.55771 z"
+       style="opacity:1;fill:#7c6588;fill-opacity:1;stroke:none;stroke-width:1.5;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       inkscape:export-filename="/Users/leonid/Projects/ex_lsh/logo.png"
+       inkscape:export-xdpi="250"
+       inkscape:export-ydpi="250" />
+    <path
+       style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1.49999988;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       d="m 93.096569,146.03305 c -0.338231,-0.0207 -0.653168,0.19739 -0.744423,0.53797 l -0.188481,0.70277 -0.702757,-0.18849 c -0.389242,-0.10428 -0.786944,0.125 -0.891237,0.51428 -0.104301,0.38925 0.125985,0.78694 0.515235,0.89124 l 0.702757,0.18847 -0.376953,1.40457 -0.702765,-0.18847 c -0.389235,-0.10428 -0.786936,0.125 -0.891229,0.51428 -0.104301,0.38924 0.125049,0.78694 0.514284,0.89125 l 0.7037,0.18846 -0.188473,0.7018 c -0.104301,0.38925 0.125049,0.78697 0.514284,0.89124 0.389243,0.1043 0.785993,-0.12499 0.890286,-0.51427 l 0.188481,-0.70276 1.405513,0.37694 -0.188473,0.70277 c -0.104301,0.38922 0.125049,0.78598 0.514284,0.89029 0.389235,0.10428 0.785992,-0.125 0.890286,-0.5143 l 0.188472,-0.70276 0.702765,0.18849 c 0.389235,0.10427 0.786936,-0.125 0.891237,-0.51429 0.104285,-0.38924 -0.125057,-0.78693 -0.514292,-0.89123 l -0.702756,-0.18848 0.376001,-1.40456 0.702765,0.18847 c 0.389235,0.10428 0.786936,-0.125 0.89123,-0.51428 0.104301,-0.38925 -0.125034,-0.78694 -0.514285,-0.89124 l -0.702756,-0.18847 0.188481,-0.70276 c 0.104301,-0.38925 -0.12505,-0.78599 -0.514284,-0.8903 -0.389243,-0.10427 -0.786936,0.125 -0.891238,0.51429 l -0.188472,0.70276 -1.405522,-0.37695 0.188473,-0.70276 c 0.10431,-0.38923 -0.125033,-0.78598 -0.514284,-0.89028 -0.04864,-0.0129 -0.09752,-0.0207 -0.145846,-0.0237 z m 0.09472,3.02225 1.406465,0.37694 -0.376953,1.40458 -1.405514,-0.37695 z"
+       id="path1008"
+       inkscape:connector-curvature="0"
+       inkscape:export-filename="/Users/leonid/Projects/ex_lsh/logo.png"
+       inkscape:export-xdpi="250"
+       inkscape:export-ydpi="250" />
+  </g>
+</svg>
