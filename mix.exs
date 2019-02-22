@@ -15,6 +15,7 @@ defmodule ExLSH.MixProject do
       homepage_url: "https://hexdocs.pm/ex_lsh",
       docs: [
         main: "ExLSH",
+        logo: "logo.svg",
         extras: ["README.md"]
       ],
       package: package()
