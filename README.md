@@ -1,10 +1,10 @@
 ![ExLSH logo](logo.svg)
 
-# ExLSH
-
-> Calculates a locality sensitive hash for text.
+## ExLSH
 
 [![Build Status](https://travis-ci.com/meltwater/ex_lsh.svg?token=ydrd7j6fwuq6xzD4yQkt&branch=master)](https://travis-ci.com/meltwater/ex_lsh)
+
+Calculates a locality sensitive hash for text.
 
 [Locality-sensitive hashing](https://en.wikipedia.org/wiki/Locality-sensitive_hashing)
 is a technique for dimensionality reduction. Its properties guarantee similar
