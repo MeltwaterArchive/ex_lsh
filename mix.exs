@@ -6,7 +6,7 @@ defmodule ExLSH.MixProject do
       app: :ex_lsh,
       aliases: aliases(),
       description: description(),
-      version: "0.4.0",
+      version: "0.5.0",
       elixir: "~> 1.6",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
