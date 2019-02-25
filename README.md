@@ -13,6 +13,9 @@ output vectors for similar inputs. It can be used for clustering and
 This implementation is targeted for natural language as input. It takes a
 `String` of arbitrary length and outputs a vector encoded as `:binary`.
 
+If you want to learn more about why and how we built ExLSH, read our blog post [Locality-sensitive Hashing in Elixir](
+https://underthehood.meltwater.com/blog/2019/02/25/locality-sensitive-hashing-in-elixir/).
+
 ## Installation
 
 Add `ex_lsh` to your list of dependencies in `mix.exs`:
