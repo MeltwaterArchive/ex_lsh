@@ -25,9 +25,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="4.7140169"
-     inkscape:cx="41.250985"
-     inkscape:cy="39.688658"
+     inkscape:zoom="2.9248816"
+     inkscape:cx="73.306694"
+     inkscape:cy="56.158339"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -49,7 +49,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -62,7 +62,7 @@
        sodipodi:nodetypes="ccccccccc"
        inkscape:connector-curvature="0"
        id="path6360"
-       d="m 86.981511,149.85608 h 0.0054 c 0,0 -0.0039,0.0717 -0.0054,0.10759 5e-5,3.71415 3.011071,6.72497 6.725209,6.72479 3.713975,-5e-5 6.72474,-3.01081 6.72479,-6.72479 -8.1e-4,-0.0359 -0.002,-0.0717 -0.004,-0.10759 h 0.004 c 0,-5.42965 -6.05682,-6.07592 -6.05682,-13.55771 -1.745883,0 -7.393179,7.48991 -7.393179,13.55771 z"
+       d="m 86.981511,149.85608 h 0.005 c 0,0 -0.004,0.0717 -0.005,0.10759 5e-5,3.71415 3.011071,6.72497 6.725209,6.72479 3.713975,-5e-5 6.72474,-3.01081 6.72479,-6.72479 -8.1e-4,-0.0359 -0.002,-0.0717 -0.004,-0.10759 h 0.004 c 0,-5.42965 -6.05682,-6.07592 -6.05682,-13.55771 -1.745883,0 -7.393179,7.48991 -7.393179,13.55771 z"
        style="opacity:1;fill:#7c6588;fill-opacity:1;stroke:none;stroke-width:1.5;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
        inkscape:export-filename="/Users/leonid/Projects/ex_lsh/logo.png"
        inkscape:export-xdpi="250"

@@ -47,9 +47,10 @@ Please fork the project and submit a PR.
   but less versatile implementation that is focused on short strings only.
   ExLSH is approximately [7 times faster](#benchmark) and supports arbitrary
   tokenization, shingling and hash functions.
-- [SpiritFingers](https://github.com/holsee/spirit_fingers) is potentially
-  faster than ExLSH but relies on a NIF written in Rust that is untrivial to
-  compile, and doesn't support any customization of the algorithm.
+- [SpiritFingers](https://github.com/holsee/spirit_fingers) is [20 times
+  faster](#benchmark) than ExLSH but relies on a NIF that needs the full Rust
+  toolchain to compile. SpiritFingers doesn't support customization of the
+  algorithm, it uses SipHash by default.
 - [Resemblance](https://github.com/matpalm/resemblance) explores simhash and
   sketching in Ruby. The author has documented his findings in a series of
   articles. You may want to make yourself familiar with
@@ -61,11 +62,10 @@ Please fork the project and submit a PR.
 ## Benchmark
 
 Benchmark against [SimHash](https://hex.pm/packages/simhash), run with
-[Benchee](https://hex.pm/packages/benchee).
+[Benchee](https://hex.pm/packages/benchee). See the setup on the [benchmark
+branch](https://github.com/meltwater/ex_lsh/tree/benchmark).
 
 ```
-Compiling 2 files (.ex)
-Generated ex_lsh app
 Operating System: macOS
 CPU Information: Intel(R) Core(TM) i7-4870HQ CPU @ 2.50GHz
 Number of Available Cores: 8
@@ -79,17 +79,20 @@ time: 5 s
 memory time: 0 ns
 parallel: 1
 inputs: none specified
-Estimated total run time: 14 s
+Estimated total run time: 21 s
 
 
-Benchmarking ExLSH.lsh/1...
-Benchmarking SimHash.hash/1...
+Benchmarking ExLSH...
+Benchmarking Simhash...
+Benchmarking SpiritFingers...
 
-Name                     ips        average  deviation         median         99th %
-ExLSH.lsh/1           325.08        3.08 ms     ±8.25%        2.97 ms        3.87 ms
-SimHash.hash/1         43.85       22.81 ms    ±12.32%       23.58 ms       27.68 ms
+Name                    ips        average  deviation         median         99th %
+SpiritFingers       8556.15       0.117 ms    ±13.37%       0.111 ms       0.183 ms
+ExLSH                309.61        3.23 ms     ±5.88%        3.19 ms        3.81 ms
+Simhash               43.19       23.15 ms    ±12.57%       22.08 ms       30.54 ms
 
 Comparison:
-ExLSH.lsh/1           325.08
-SimHash.hash/1         43.85 - 7.41x slower
+SpiritFingers       8556.15
+ExLSH                309.61 - 27.64x slower
+Simhash               43.19 - 198.11x slower
 ```
