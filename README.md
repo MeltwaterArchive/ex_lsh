@@ -56,11 +56,11 @@ Please fork the project and submit a PR.
   [Part 3: The SimHash Algorithm](http://matpalm.com/resemblance/simhash/).
 - [Near-duplicate detection](https://moz.com/devblog/near-duplicate-detection/)
   is a very helpful article by Moz. It explains core concepts such as
-  tokinization, shingling, MinHash, SimHash, etc.
+  tokenization, shingling, MinHash, SimHash, etc.
 
 ## Benchmark
 
-Benchmark agains [SimHash](https://hex.pm/packages/simhash), run with
+Benchmark against [SimHash](https://hex.pm/packages/simhash), run with
 [Benchee](https://hex.pm/packages/benchee).
 
 ```
