@@ -47,7 +47,7 @@ Please fork the project and submit a PR.
   but less versatile implementation that is focused on short strings only.
   ExLSH is approximately [7 times faster](#benchmark) and supports arbitrary
   tokenization, shingling and hash functions.
-- [SpiritFingers](https://github.com/holsee/spirit_fingers) is [20 times
+- [SpiritFingers](https://github.com/holsee/spirit_fingers) is ca. [27 times
   faster](#benchmark) than ExLSH but relies on a NIF that needs the full Rust
   toolchain to compile. SpiritFingers doesn't support customization of the
   algorithm, it uses SipHash by default.
